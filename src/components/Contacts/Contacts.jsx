@@ -1,13 +1,23 @@
-import PropTypes from 'prop-types'
 import css from './contacts.module.css'
+import { deleteContact } from 'redux/contactsSlice';
+import { useSelector, useDispatch } from 'react-redux';
 
-export default function Contacts({ contacts, handleDelete }) {
+export default function Contacts() {
+    const dispatch = useDispatch();
+
+    const contacts = useSelector(state => state.contacts.contacts);
+
+    const filter = useSelector(state => state.contacts.filter);
+    const filteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
     return (
         <ul>
-          {contacts.map(({id,name,number}) => 
+          {filteredContacts.map((contact, id) => 
               <li className={css.contacts__item} key={id}>
-                  {name}: {number}
-                  <button className={css.delete__btn} onClick={() => handleDelete(id)}>Delete</button>
+                   {contact.name}: {contact.number}
+                  <button className={css.delete__btn} onClick={() => dispatch(deleteContact(contact))}>Delete</button>
               </li>
           )}
         </ul>
@@ -15,13 +25,3 @@ export default function Contacts({ contacts, handleDelete }) {
         
 }
 
-Contacts.propTypes = {
-    contacts: PropTypes.arrayOf(
-        PropTypes.shape({
-            id: PropTypes.string,
-            name: PropTypes.string,
-            number: PropTypes.string,
-        }),
-    ),
-    handleDelete: PropTypes.func,
-};
